@@ -1,0 +1,5 @@
+{
+  "build_command": "../test.sh",
+  "log_dir": "../public/logs/",
+  "public_log_path": "/logs"
+}
