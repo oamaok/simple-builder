@@ -8,6 +8,7 @@ $public_config->public_log_path = $config->public_log_path;
 <html>
 <head>
   <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap" rel="stylesheet">
 <style>
 * {
   margin: 0;
@@ -15,8 +16,6 @@ $public_config->public_log_path = $config->public_log_path;
   font-size: 14px;
   border: none;
   box-sizing: border-box;
-  font-family: 'Source Code Pro', monospace;
-  letter-spacing: -0.03em;
 }
 
 body {
@@ -24,23 +23,31 @@ body {
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  background-color: #eee;
+  background-color: #9aa3b0;
   max-height: 100vh;
   height: 100vh;
   padding: 20px;
+  color: #2d3239;
+  font-family: 'Poppins';
 }
 
 .controls {
   width: 300px;
   margin-right: 20px;
   padding: 20px;
-  border: 1px solid #999;
-  background-color: #fff;
+  border: 1px solid #404751;
+  background-color: #efefef;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .build-info {
   margin-top: 20px;
+}
+
+.logfile {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 h4 {
@@ -56,14 +63,13 @@ button {
   font-size: 16px;
   position: relative;
   border-bottom: 3px solid;
-  background: #999;
-  border-color: #555;
   outline: none;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   border-radius: 1px;
-  background: #458b53;
+  background: #3db63d;
   color: #fff;
-  border-color: #295a33;
+  border-color: #16831d;
+  font-family: 'Poppins';
 }
 
 button:disabled, button:hover {
@@ -73,10 +79,10 @@ button:disabled, button:hover {
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
-button:disabled {
+button.kill {
 
-  background: #aaa;
-  border-color: #999;
+  background: #dc4a42;
+  border-color: #ae3433;
 }
 
 button:active {
@@ -91,8 +97,8 @@ button:active {
   height: 100%;
   margin-left: 20px;
   padding: 20px;
-  border: 1px solid #999;
-  background-color: #fff;
+  border: 1px solid #404751;
+  background-color: #efefef;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
@@ -100,13 +106,14 @@ button:active {
 
 #output {
   display: block;
-  border: 1px solid #999;
+  border: 1px solid #404751;
   box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
-  background-color: #333;
+  background-color: #404751;
   padding: 5px;
   color: #e7e7e7;
   overflow-y: scroll;
   height: 100%;
+  font-family: 'Source Code Pro', monospace;
 }
 
 .row.header>b {
@@ -128,7 +135,7 @@ const config = <?= json_encode($public_config) ?>;
   <div class="build-info">
     <h4>Current build</h4>
     <div class="">PID: <b id="build-pid"></b></div> 
-    <div class="">Log file: <b id="build-logfile"></b></div> 
+    <div class="logfile">Log file: <b id="build-logfile"></b></div> 
     <div class="">Running: <b id="build-status"></b></div> 
   </div>
 
@@ -137,27 +144,43 @@ const config = <?= json_encode($public_config) ?>;
   <h4>Log output</h4>
   <pre id="output"></pre>
 <script>
-const buildTriggerElement = document.getElementById('build-trigger');
+const actionButton = document.getElementById('build-trigger');
 const pidElement = document.getElementById('build-pid');
 const logfileElement = document.getElementById('build-logfile');
 const statusElement = document.getElementById('build-status');
 const outputElement = document.getElementById('output');
 
 let token = null;
+let running = false;
 
 function getLogPath(logfile) { return `${config.public_log_path}/${logfile}` }
 
 async function triggerBuild() {
-  buildTriggerElement.disabled = true;
+  actionButton.classList.toggle('kill', true);
+  actionButton.innerText = 'Kill build';
+
+  running = true;
   token = await fetch('?build').then(res => res.text());
 
   const { pid, logfile } = JSON.parse(token).payload;
 
   pidElement.innerText = pid
   logfileElement.innerHTML = `<a href="${getLogPath(logfile)}" target="_blank">${logfile}</a>`
+
+  poll()
 }
 
-buildTriggerElement.addEventListener('click', triggerBuild);
+async function killBuild() {
+  if (token) {
+    await fetch(`/?kill&token=${token}`)
+    poll()
+  }
+}
+
+
+actionButton.addEventListener('click', () => {
+  if (running) { killBuild() } else { triggerBuild() }
+});
 
 
 const HEADER_REGEX = /^(=+)( .+ )(=+)/
@@ -192,18 +215,23 @@ function renderOutput(output) {
 
 async function poll() {
   if (token) {
-    const status = await fetch(`/?status&token=${token}`).then(res => res.json())
-    buildTriggerElement.disabled = status.running;
-    statusElement.innerText = status.running;
-  }
-
-  if (token) {
     const { logfile } = JSON.parse(token).payload;
+
+    const status = await fetch(`/?status&token=${token}`).then(res => res.json())
+    running = status.running;
+    actionButton.classList.toggle('kill', running);
+    actionButton.innerText = running ? 'Kill build' : 'Trigger build';
+
+    statusElement.innerText = status.running;
+
     renderOutput(await fetch(getLogPath(logfile)).then(res => res.text()))
+
+    if (running) {
+      setTimeout(poll, 500);
+    }
   }
 }
 
-setInterval(poll, 500);
 </script>
 </body>
 </html>

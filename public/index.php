@@ -14,4 +14,9 @@ if (isset($_GET['status'])) {
   exit(0);
 }
 
+if (isset($_GET['kill'])) {
+  require_once('../inc/kill.php');
+  exit(0);
+}
+
 require_once('../inc/index.php');
