@@ -1,22 +1,21 @@
 <?php
 
-$filepath = dirname(__file__) . "/../.hmac_keys";
 
-if (!file_exists($filepath)) { touch($filepath); }
-$file_contents = file_get_contents($filepath);
+if (!file_exists($hmac_key_file)) { touch($hmac_key_file); }
+$file_contents = file_get_contents($hmac_key_file);
 
 if (strlen($file_contents) == 0) {
   $file_contents = base64_encode(openssl_random_pseudo_bytes(256));
-  file_put_contents($filepath, $file_contents);
+  file_put_contents($hmac_key_file, $file_contents);
 }
 
 $keys = explode("\n", $file_contents);
 
 // Yes, this is not the safest method as no key has a predetermined TTL
-if (filemtime($filepath) < time() - 60 * 60 * 1) {
+if (filemtime($hmac_key_file) < time() - 60 * 60 * 1) {
   array_unshift($keys, base64_encode(openssl_random_pseudo_bytes(256)));
   $keys = array_slice($keys, 0, 4);
-  file_put_contents($filepath, implode("\n", $keys));
+  file_put_contents($hmac_key_file, implode("\n", $keys));
 }
 
 $current_key = $keys[0];

@@ -15,6 +15,11 @@ header('Content-type: application/json');
 $res = new stdClass;
 $res->pid = $pid;
 $res->logfile = $log_file;
-echo create_token($res);
+
+$token = create_token($res);
+
+file_put_contents($token_file, $token);
+
+echo $token;
 
 ?>

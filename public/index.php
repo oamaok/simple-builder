@@ -1,8 +1,10 @@
 <?php
 
-require_once(dirname(__file__) . '/../inc/hmac.php');
-
 $config = json_decode(file_get_contents(dirname(__file__) . '/../config.json'));
+$token_file = dirname(__file__) . "/../.token";
+$hmac_key_file = dirname(__file__) . "/../.hmac_keys";
+
+require_once(dirname(__file__) . '/../inc/hmac.php');
 
 if (isset($_GET['build'])) {
   require_once(dirname(__file__) . '/../inc/build.php');

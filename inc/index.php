@@ -1,6 +1,10 @@
 <?php
+
 $public_config = new stdClass;
 $public_config->public_log_path = $config->public_log_path;
+
+$token = "";
+if (file_exists($token_file)) { $token = file_get_contents($token_file); }
 
 
 ?>
@@ -131,6 +135,7 @@ button:active {
 </style>
 <script>
 const config = <?= json_encode($public_config) ?>;
+let token = "<?= addslashes($token) ?>";
 </script>
 </head>
 <body>
@@ -154,7 +159,6 @@ const logfileElement = document.getElementById('build-logfile');
 const statusElement = document.getElementById('build-status');
 const outputElement = document.getElementById('output');
 
-let token = null;
 let running = false;
 
 function getLogPath(logfile) { return `${config.public_log_path}/${logfile}` }
@@ -169,8 +173,6 @@ async function triggerBuild() {
   const { pid, logfile } = JSON.parse(token).payload;
 
   pidElement.innerText = pid
-  logfileElement.innerHTML = `<a href="${getLogPath(logfile)}" target="_blank">${logfile}</a>`
-
   poll()
 }
 
@@ -220,8 +222,10 @@ function renderOutput(output) {
 async function poll() {
   if (token) {
     const { logfile } = JSON.parse(token).payload;
+    logfileElement.innerHTML = `<a href="${getLogPath(logfile)}" target="_blank">${logfile}</a>`
 
     const status = await fetch(`?status&token=${token}`).then(res => res.json())
+
     running = status.running;
     actionButton.classList.toggle('kill', running);
     actionButton.innerText = running ? 'Kill build' : 'Trigger build';
@@ -235,6 +239,8 @@ async function poll() {
     }
   }
 }
+
+poll()
 
 </script>
 </body>
