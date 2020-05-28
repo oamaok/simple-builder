@@ -3,7 +3,7 @@
 if (file_exists($config->log_dir) && !is_dir($config->log_dir)) die($config->log_dir . ' exists, but is not a directory.');
 if (!file_exists($config->log_dir)) mkdir($config->log_dir);
 
-$log_file = date("Ymd_His") . '.' . substr(md5(microtime()), 0, 8) . '.txt';
+$log_file = date("Ymd_His") . '.' . substr(md5(microtime()), 0, 4) . '.txt';
 $log_file_path = $config->log_dir . '/' . $log_file;
 
 if (!touch($log_file_path)) die('Failed to create log file ' . $log_file_path);

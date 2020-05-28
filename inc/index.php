@@ -6,7 +6,9 @@ $public_config->public_log_path = $config->public_log_path;
 $token = "";
 if (file_exists($token_file)) { $token = file_get_contents($token_file); }
 
-
+$logs = array_diff(scandir($config->log_dir), array('..', '.'));
+sort($logs);
+$logs = array_reverse($logs);
 ?>
 <!doctype html>
 <html>
@@ -35,13 +37,33 @@ body {
   font-family: 'Poppins';
 }
 
-.controls {
+.sidebar {
   width: 300px;
   margin-right: 20px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.controls, .logs {
   padding: 20px;
+  width: 100%;
   border: 1px solid #404751;
   background-color: #efefef;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+}
+
+.logs {
+  overflow-y: scroll;
+  margin-bottom: 0;
+}
+
+.logs a {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .build-info {
@@ -99,7 +121,6 @@ button:active {
 .output-wrapper {
   width: 800px;
   height: 100%;
-  margin-left: 20px;
   padding: 20px;
   border: 1px solid #404751;
   background-color: #efefef;
@@ -139,7 +160,8 @@ let token = "<?= addslashes($token) ?>";
 </script>
 </head>
 <body>
-<div class="controls">
+<div class="sidebar">
+  <div class="controls">
   <button class="tertiary" id="build-trigger">Trigger build</button>
   <div class="build-info">
     <h4>Current build</h4>
@@ -147,11 +169,22 @@ let token = "<?= addslashes($token) ?>";
     <div class="logfile">Log file: <b id="build-logfile"></b></div> 
     <div class="">Running: <b id="build-status"></b></div> 
   </div>
-
 </div>
-  <div class="output-wrapper">
+<div class="logs">
+<?php
+
+foreach ($logs as $logfile) {
+  echo "<a href=\"$config->public_log_path/$logfile\" target=\"_blank\">$logfile</a>";
+}
+
+?>
+</div>
+</div>
+
+<div class="output-wrapper">
   <h4>Log output</h4>
   <pre id="output"></pre>
+</div>
 <script>
 const actionButton = document.getElementById('build-trigger');
 const pidElement = document.getElementById('build-pid');
