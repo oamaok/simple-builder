@@ -172,7 +172,7 @@ async function triggerBuild() {
 
 async function killBuild() {
   if (token) {
-    await fetch(`/?kill&token=${token}`)
+    await fetch(`?kill&token=${token}`)
     poll()
   }
 }
@@ -217,7 +217,7 @@ async function poll() {
   if (token) {
     const { logfile } = JSON.parse(token).payload;
 
-    const status = await fetch(`/?status&token=${token}`).then(res => res.json())
+    const status = await fetch(`?status&token=${token}`).then(res => res.json())
     running = status.running;
     actionButton.classList.toggle('kill', running);
     actionButton.innerText = running ? 'Kill build' : 'Trigger build';
