@@ -1,8 +1,8 @@
 <?php
 
-if (!is_numeric($_GET['pid'])) die('Invalid PID');
+if (validate_token($_GET['token'], $payload)) die('Invalid token');
 
-exec('ps -p ' . $_GET['pid'], $output);
+exec('ps -p ' . $payload->pid, $output);
 
 $res = new stdClass;
 $res->running = isset($output[1]);

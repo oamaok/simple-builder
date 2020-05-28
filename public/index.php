@@ -1,5 +1,7 @@
 <?php
 
+require_once('../inc/hmac.php');
+
 $config = json_decode(file_get_contents('../config.json'));
 
 if (isset($_GET['build'])) {

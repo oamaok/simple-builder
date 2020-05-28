@@ -15,6 +15,6 @@ header('Content-type: application/json');
 $res = new stdClass;
 $res->pid = $pid;
 $res->logfile = $log_file;
-echo json_encode($res);
+echo create_token($res);
 
 ?>

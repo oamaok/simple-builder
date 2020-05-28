@@ -143,16 +143,15 @@ const logfileElement = document.getElementById('build-logfile');
 const statusElement = document.getElementById('build-status');
 const outputElement = document.getElementById('output');
 
-let pid = null;
-let logfile = null;
+let token = null;
 
 function getLogPath(logfile) { return `${config.public_log_path}/${logfile}` }
 
 async function triggerBuild() {
   buildTriggerElement.disabled = true;
-  const result = await fetch('?build').then(res => res.json());
-  pid = result.pid;
-  logfile = result.logfile;
+  token = await fetch('?build').then(res => res.text());
+
+  const { pid, logfile } = JSON.parse(token).payload;
 
   pidElement.innerText = pid
   logfileElement.innerHTML = `<a href="${getLogPath(logfile)}" target="_blank">${logfile}</a>`
@@ -192,13 +191,14 @@ function renderOutput(output) {
 }
 
 async function poll() {
-  if (pid) {
-    const status = await fetch(`/?status&pid=${pid}`).then(res => res.json())
+  if (token) {
+    const status = await fetch(`/?status&token=${token}`).then(res => res.json())
     buildTriggerElement.disabled = status.running;
     statusElement.innerText = status.running;
   }
 
-  if (logfile) {
+  if (token) {
+    const { logfile } = JSON.parse(token).payload;
     renderOutput(await fetch(getLogPath(logfile)).then(res => res.text()))
   }
 }
