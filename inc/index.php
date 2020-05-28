@@ -82,8 +82,10 @@ h4 {
 }
 
 button {
+  text-transform: uppercase;
   border: none;
   padding: 0.5em 1em;
+  width: 100%;
   font-weight: 600;
   margin-right: 0.5em;
   font-size: 16px;
@@ -121,8 +123,6 @@ button:active {
 .output-wrapper {
   width: 800px;
   height: 100%;
-  padding: 20px;
-  border: 1px solid #404751;
   background-color: #efefef;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -164,7 +164,6 @@ let token = "<?= addslashes($token) ?>";
   <div class="controls">
   <button class="tertiary" id="build-trigger">Trigger build</button>
   <div class="build-info">
-    <h4>Current build</h4>
     <div class="">PID: <b id="build-pid"></b></div> 
     <div class="logfile">Log file: <b id="build-logfile"></b></div> 
     <div class="">Running: <b id="build-status"></b></div> 
@@ -182,7 +181,6 @@ foreach ($logs as $logfile) {
 </div>
 
 <div class="output-wrapper">
-  <h4>Log output</h4>
   <pre id="output"></pre>
 </div>
 <script>
