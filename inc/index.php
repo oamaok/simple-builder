@@ -116,6 +116,10 @@ button:active {
   font-family: 'Source Code Pro', monospace;
 }
 
+.row {
+  white-space: break-spaces;
+}
+
 .row.header>b {
   color: #3498db;
 }
