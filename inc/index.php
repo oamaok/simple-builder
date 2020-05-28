@@ -29,12 +29,33 @@ body {
   justify-content: center;
   align-items: flex-start;
   width: 100%;
-  background-color: #9aa3b0;
+  background-color: #fff;
+  background-image: url('/assets/bg.jpeg');
+  background-size: cover;
   max-height: 100vh;
   height: 100vh;
   padding: 20px;
-  color: #2d3239;
+  color: rgba(255, 255, 255, 0.7);
   font-family: 'Poppins';
+}
+
+a {
+
+  color: rgba(255, 255, 255, 0.7);
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+}
+ 
+::-webkit-scrollbar-track {
+    box-shadow: none;
+    padding: 2px;
+}
+ 
+::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    margin: 2px;
 }
 
 .sidebar {
@@ -48,9 +69,8 @@ body {
 .controls, .logs {
   padding: 20px;
   width: 100%;
-  border: 1px solid #404751;
-  background-color: #efefef;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
   margin-bottom: 20px;
 }
 
@@ -123,17 +143,14 @@ button:active {
 .output-wrapper {
   width: 800px;
   height: 100%;
-  background-color: #efefef;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
 }
 
 #output {
   display: block;
-  border: 1px solid #404751;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
-  background-color: #404751;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 5px;
   color: #e7e7e7;
   overflow-y: scroll;
@@ -164,9 +181,9 @@ let token = "<?= addslashes($token) ?>";
   <div class="controls">
   <button class="tertiary" id="build-trigger">Trigger build</button>
   <div class="build-info">
-    <div class="">PID: <b id="build-pid"></b></div> 
-    <div class="logfile">Log file: <b id="build-logfile"></b></div> 
-    <div class="">Running: <b id="build-status"></b></div> 
+    <div class="">PID: <span id="build-pid"></span></div> 
+    <div class="logfile">Log file: <span id="build-logfile"></span></div> 
+    <div class="">Running: <span id="build-status"></span></div> 
   </div>
 </div>
 <div class="logs">
