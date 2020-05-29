@@ -237,9 +237,13 @@ actionButton.addEventListener('click', () => {
 });
 
 
+let lastOutput = ''
 const HEADER_REGEX = /^(=+)( .+ )(=+)/
 
 function renderOutput(output) {
+  if (lastOutput === output) return
+  lastOutput = output
+
   outputElement.innerText = ''
 
   output.split('\n').forEach(line => {
@@ -265,6 +269,8 @@ function renderOutput(output) {
     row.appendChild(elem)
     outputElement.appendChild(row)
   })
+
+  outputElement.scrollTo({ top: outputElement.scrollHeight, behavior: 'smooth' })
 }
 
 async function poll() {
