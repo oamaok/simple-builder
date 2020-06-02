@@ -21,4 +21,9 @@ if (isset($_GET['kill'])) {
   exit(0);
 }
 
+if (isset($_GET['restart'])) {
+  require_once(dirname(__file__) . '/../inc/restart.php');
+  exit(0);
+}
+
 require_once(dirname(__file__) . '/../inc/index.php');
