@@ -1,5 +1,6 @@
 {
   "build_command": "../test.sh",
+  "restart_command": "../restart.sh",
   "log_dir": "../public/logs/",
   "public_log_path": "/logs"
 }

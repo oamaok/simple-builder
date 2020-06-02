@@ -180,6 +180,7 @@ let token = "<?= addslashes($token) ?>";
 <div class="sidebar">
   <div class="controls">
   <button class="tertiary" id="build-trigger">Trigger build</button>
+  <button class="tertiary" id="server-restart">Restart server</button>
   <div class="build-info">
     <div class="">PID: <span id="build-pid"></span></div> 
     <div class="logfile">Log file: <span id="build-logfile"></span></div> 
@@ -202,6 +203,7 @@ foreach ($logs as $logfile) {
 </div>
 <script>
 const actionButton = document.getElementById('build-trigger');
+const restartButton = document.getElementById('server-restart');
 const pidElement = document.getElementById('build-pid');
 const logfileElement = document.getElementById('build-logfile');
 const statusElement = document.getElementById('build-status');
@@ -231,11 +233,24 @@ async function killBuild() {
   }
 }
 
+async function restartServer() {
+  running = true;
+  token = await fetch('?restart').then(res => res.text());
+
+  const { pid, logfile } = JSON.parse(token).payload;
+
+  pidElement.innerText = pid
+  poll()
+}
+
 
 actionButton.addEventListener('click', () => {
   if (running) { killBuild() } else { triggerBuild() }
 });
 
+restartButton.addEventListener('click', () => {
+  restartServer()
+});
 
 let lastOutput = ''
 const HEADER_REGEX = /^(=+)( .+ )(=+)/
