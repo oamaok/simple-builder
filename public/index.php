@@ -6,8 +6,8 @@ $hmac_key_file = dirname(__file__) . "/../.hmac_keys";
 
 require_once(dirname(__file__) . '/../inc/hmac.php');
 
-if (isset($_GET['build'])) {
-  require_once(dirname(__file__) . '/../inc/build.php');
+if (isset($_GET['run'])) {
+  require_once(dirname(__file__) . '/../inc/run.php');
   exit(0);
 }
 
@@ -18,11 +18,6 @@ if (isset($_GET['status'])) {
 
 if (isset($_GET['kill'])) {
   require_once(dirname(__file__) . '/../inc/kill.php');
-  exit(0);
-}
-
-if (isset($_GET['restart'])) {
-  require_once(dirname(__file__) . '/../inc/restart.php');
   exit(0);
 }
 

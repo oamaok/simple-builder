@@ -118,25 +118,37 @@ button {
   color: #fff;
   border-color: #16831d;
   font-family: 'Poppins';
+  margin-bottom: 10px;
 }
 
 button:disabled, button:hover {
-  top: 1px;
+  margin-top: 1px;
   border-width: 2px;
-  margin-bottom: 1px;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 button.kill {
-
+  display: none;
   background: #dc4a42;
   border-color: #ae3433;
 }
 
+
+button.kill.active {
+  display: block;
+}
+
+#jobs {
+  display: none;
+}
+
+#jobs.active {
+  display: block;
+}
+
 button:active {
-  top: 3px;
+  margin-top: 3px;
   border-width: 0px;
-  margin-bottom: 3px;
   box-shadow: none;
 }
 
@@ -179,8 +191,13 @@ let token = "<?= addslashes($token) ?>";
 <body>
 <div class="sidebar">
   <div class="controls">
-  <button class="tertiary" id="build-trigger">Trigger build</button>
-  <button class="tertiary" id="server-restart">Restart server</button>
+
+<div id="jobs">
+<?php foreach ($config->jobs as $job_id => $job) { ?>
+  <button class="tertiary" value="<?= $job_id ?>"><?= $job->name ?></button>
+<?php } ?>
+</div>
+  <button class="tertiary kill" id="kill">Kill job</button>
   <div class="build-info">
     <div class="">PID: <span id="build-pid"></span></div> 
     <div class="logfile">Log file: <span id="build-logfile"></span></div> 
@@ -202,8 +219,10 @@ foreach ($logs as $logfile) {
   <pre id="output"></pre>
 </div>
 <script>
-const actionButton = document.getElementById('build-trigger');
-const restartButton = document.getElementById('server-restart');
+
+const jobsElement = document.getElementById('jobs')
+const jobButtons = [...document.querySelectorAll('#jobs button')];
+const killButton = document.getElementById('kill');
 const pidElement = document.getElementById('build-pid');
 const logfileElement = document.getElementById('build-logfile');
 const statusElement = document.getElementById('build-status');
@@ -213,44 +232,24 @@ let running = false;
 
 function getLogPath(logfile) { return `${config.public_log_path}/${logfile}` }
 
-async function triggerBuild() {
-  actionButton.classList.toggle('kill', true);
-  actionButton.innerText = 'Kill build';
+jobButtons.forEach(button => {
+  button.addEventListener('click', async () => {
+    running = true;
+    token = await fetch('?run&job=' + button.value).then(res => res.text());
 
-  running = true;
-  token = await fetch('?build').then(res => res.text());
+    const { pid, logfile } = JSON.parse(token).payload;
 
-  const { pid, logfile } = JSON.parse(token).payload;
+    pidElement.innerText = pid
+    poll()
+  })
+})
 
-  pidElement.innerText = pid
-  poll()
-}
-
-async function killBuild() {
+killButton.addEventListener('click', async () => {
   if (token) {
     await fetch(`?kill&token=${token}`)
     poll()
   }
-}
-
-async function restartServer() {
-  running = true;
-  token = await fetch('?restart').then(res => res.text());
-
-  const { pid, logfile } = JSON.parse(token).payload;
-
-  pidElement.innerText = pid
-  poll()
-}
-
-
-actionButton.addEventListener('click', () => {
-  if (running) { killBuild() } else { triggerBuild() }
-});
-
-restartButton.addEventListener('click', () => {
-  restartServer()
-});
+})
 
 let lastOutput = ''
 const HEADER_REGEX = /^(=+)( .+ )(=+)/
@@ -296,8 +295,9 @@ async function poll() {
     const status = await fetch(`?status&token=${token}`).then(res => res.json())
 
     running = status.running;
-    actionButton.classList.toggle('kill', running);
-    actionButton.innerText = running ? 'Kill build' : 'Trigger build';
+
+    killButton.classList.toggle('active', running)
+    jobsElement.classList.toggle('active', !running)
 
     statusElement.innerText = status.running;
 

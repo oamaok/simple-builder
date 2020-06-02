@@ -1,6 +1,14 @@
 {
-  "build_command": "../test.sh",
-  "restart_command": "../restart.sh",
+  "jobs": [{
+    "name": "Trigger build",
+    "command": "../test.sh",
+    "log_prefix": "build"
+  }, {
+    "name": "Restart server",
+    "command": "../restart.sh",
+    "log_prefix": "restart"
+  }],
+
   "log_dir": "../public/logs/",
   "public_log_path": "/logs"
 }
