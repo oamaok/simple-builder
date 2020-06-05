@@ -292,7 +292,7 @@ async function poll() {
     const { logfile } = JSON.parse(token).payload;
     logfileElement.innerHTML = `<a href="${getLogPath(logfile)}" target="_blank">${logfile}</a>`
 
-    const status = await fetch(`?status&token=${token}`).then(res => res.json())
+    const status = await fetch(`?status&token=${token}`).then(res => res.json()).catch(() => ({ running: false }))
 
     running = status.running;
 
